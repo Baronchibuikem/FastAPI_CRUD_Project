@@ -1,16 +1,19 @@
-from fastapi import FastAPI, Response, status, HTTPException, Depends, APIRouter
+from fastapi import status, HTTPException, Depends, APIRouter
 from ..models import User, Base
 from ..database import engine, get_db
 from sqlalchemy.orm import Session
 from ..schemas import UserCreate, UserResponse
-from ..utils import hash_password
+from app.utils.user_utils import hash_password
 
 
-router = APIRouter()
+router = APIRouter(
+    prefix="/users",
+    tags=["users"]
+)
 Base.metadata.create_all(bind=engine)
 
 
-@router.post("/users", status_code=status.HTTP_201_CREATED, response_model=UserResponse)
+@router.post("/", status_code=status.HTTP_201_CREATED, response_model=UserResponse)
 def create_user(user: UserCreate, db: Session = Depends(get_db)):
     """Create a User."""
     # has the password
@@ -22,7 +25,7 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
     return new_user
 
 
-@router.get("/user/{id}", status_code=status.HTTP_200_OK, response_model=UserResponse)
+@router.get("/{id}", status_code=status.HTTP_200_OK, response_model=UserResponse)
 def get_user(id: int, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.id == id).first()
     if user is None:

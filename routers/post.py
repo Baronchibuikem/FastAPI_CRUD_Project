@@ -42,11 +42,17 @@ def get_post(id: int, db: Session = Depends(get_db), current_user:int = Depends(
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_post(id:int, db: Session = Depends(get_db), current_user:int = Depends(get_current_user)):
     """Delete a Post by id"""
-    post = db.query(Post).filter(Post.id == id)
-    if post.first() is None:
+    post_query = db.query(Post).filter(Post.id == id)
+    post = post_query.first()
+    if post is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail=f"post with id {id} not found")
-    post.delete(synchronize_session=False)
+
+    if post.owner_id != current_user.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                            detail=f"you do not have the permission to delete this post")
+
+    post_query.delete(synchronize_session=False)
     db.commit()
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
@@ -56,11 +62,16 @@ def update_post(id: int, update_post: PostCreate, db: Session = Depends(get_db),
                 current_user:int = Depends(get_current_user)):
     """Update a Post by id"""
     post_query = db.query(Post).filter(Post.id == id)
-    print(post_query)
     post = post_query.first()
+
     if post is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail=f"post with id {id} not found")
+
+    if post.owner_id != current_user.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                            detail=f"you do not have the permission to update this post")
+
     post_query.update(update_post.dict(), synchronize_session=False)
     db.commit()
     return post_query.first()

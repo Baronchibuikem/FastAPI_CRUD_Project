@@ -18,6 +18,7 @@ class PostResponse(PostBase):
     """A representation of what our post response look like"""
     id: int
     created_at: datetime
+    owner_id: int
 
     class Config:
         """This will tell pydantic to read our value from sqlachemy"""

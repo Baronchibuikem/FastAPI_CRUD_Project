@@ -1,21 +1,37 @@
-from ..models import Post, Base
-from ..schemas import PostCreate, PostResponse
-from ..database import engine, get_db
+from app.models import Post, Vote
+from app.schemas import PostCreate, PostResponse, PostVote
+from app.database import get_db
 from sqlalchemy.orm import Session
-from fastapi import FastAPI, Response, status,APIRouter, HTTPException, Depends
+from fastapi import Response, status,APIRouter, HTTPException, Depends
 from app.utils.oauth2 import get_current_user
+from typing import Optional
+from sqlalchemy import func
 
 
 router = APIRouter(
     prefix="/posts",
     tags=["posts"]
 )
-Base.metadata.create_all(bind=engine)
 
-@router.get('/', response_model=list[PostResponse])
-def get_posts(db: Session = Depends(get_db), user_user:int = Depends(get_current_user)):
+@router.get('/', response_model=list[PostVote])
+def get_posts(db: Session = Depends(get_db), current_user: int = Depends(get_current_user),
+              limit: int = 10, skip: int = 0, search: Optional[str] = ""):
     """Get all post."""
-    result = db.query(Post).all()
+
+    posts = db.query(Post, func.count(Vote.post_id)
+                    .label('votes'))\
+                    .join(Vote, Vote.post_id == Post.id, isouter=True)\
+                    .group_by(Post.id) \
+                    .filter(Post.title.contains(search)).limit(limit).offset(skip)\
+                    .all()
+    return posts
+
+
+@router.get('/mine', response_model=list[PostVote])
+def get_user_posts(db: Session = Depends(get_db), current_user:int = Depends(get_current_user),limit:int = 10):
+    """Get all post belonging to logged in user."""
+    result = db.query(Post, func.count(Vote.post_id).label('votes')).join(Vote, Vote.post_id == Post.id, isouter=True)\
+                .group_by(Post.id).filter(Post.owner_id == current_user.id).limit(limit).all()
     return result
 
 
@@ -29,10 +45,11 @@ def create_post(post: PostCreate, db: Session = Depends(get_db),
     db.refresh(new_post)
     return new_post
 
-@router.get("/{id}", response_model=PostResponse)
+@router.get("/{id}", response_model=PostVote)
 def get_post(id: int, db: Session = Depends(get_db), current_user:int = Depends(get_current_user)):
     """Get a Post by id."""
-    post = db.query(Post).filter(Post.id == id).first()
+    post = db.query(Post, func.count(Vote.post_id).label('votes')).join(Vote, Vote.post_id == Post.id, isouter=True)\
+                .group_by(Post.id).filter(Post.id == id).first()
     if not post:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail=f'post with id {id} does not match')

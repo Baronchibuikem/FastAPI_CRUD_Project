@@ -1,6 +1,6 @@
 from fastapi import status, HTTPException, Depends, APIRouter
-from ..models import User, Base
-from ..database import engine, get_db
+from ..models import User
+from ..database import get_db
 from sqlalchemy.orm import Session
 from ..schemas import UserCreate, UserResponse
 from app.utils.user_utils import hash_password
@@ -10,7 +10,6 @@ router = APIRouter(
     prefix="/users",
     tags=["users"]
 )
-Base.metadata.create_all(bind=engine)
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=UserResponse)

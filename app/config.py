@@ -8,14 +8,12 @@ load_dotenv(find_dotenv())
 
 uri = os.getenv("DATABASE_URL")
 
-if uri.startswith("postgres://"):
-    uri = uri.replace("postgres://", "postgresql://", 1)
 
 class Settings(BaseSettings):
     SECRET_KEY: str = os.getenv('SECRET_KEY')
     ALGORITHM: str = os.getenv('ALGORITHM')
     ACCESS_TOKEN_EXPIRE_MINUTES: int = os.getenv('ACCESS_TOKEN_EXPIRE_MINUTES')
-    DATABASE_URL: str = uri
+    SQL_DATABASE_URL: str = uri.replace("postgres://", "postgresql://", 1) if uri.startswith("postgres://") else uri
 
 
 settings = Settings()

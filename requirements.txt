@@ -1,6 +1,7 @@
+alembic==1.7.7
 anyio==3.5.0
 asgiref==3.5.0
-black==22.3.0
+bcrypt==3.2.0
 certifi==2021.10.8
 cffi==1.15.0
 charset-normalizer==2.0.12
@@ -13,11 +14,12 @@ fastapi==0.75.0
 h11==0.13.0
 httptools==0.2.0
 idna==3.3
-isort==5.10.1
 itsdangerous==2.1.2
 Jinja2==3.1.1
+Mako==1.2.0
 MarkupSafe==2.1.1
 orjson==3.6.7
+passlib==1.7.4
 psycopg2==2.9.3
 pyasn1==0.4.8
 pycparser==2.21
@@ -27,7 +29,6 @@ python-jose==3.3.0
 python-multipart==0.0.5
 PyYAML==5.4.1
 requests==2.27.1
-responses==0.20.0
 rsa==4.8
 six==1.16.0
 sniffio==1.2.0

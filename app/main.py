@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .routers import post, user, auth, vote
+from app.routers import post, user, auth, vote
 
 # when you want pydantic to create your table
 # Base.metadata.create_all(bind=engine)

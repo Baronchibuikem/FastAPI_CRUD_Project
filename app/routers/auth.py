@@ -5,7 +5,7 @@ from app.schemas import Token
 from app.models import User
 from app.utils.user_utils import verify
 from app.utils.oauth2 import create_access_token
-from  fastapi.security.oauth2 import OAuth2PasswordRequestForm
+from fastapi.security.oauth2 import OAuth2PasswordRequestForm
 
 
 router = APIRouter(tags=['authentication'])

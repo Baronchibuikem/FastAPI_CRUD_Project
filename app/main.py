@@ -22,6 +22,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.get("/")
+def read_root():
+    return {"message": "Welcome to  FastAPI crud application"}
+
 # add all your routers
 app.include_router(post.router)
 app.include_router(user.router)

@@ -1,6 +1,6 @@
 name: Build and Deploy Code
 on: [push]
-job:
+jobs:
   job1:
     runs-on: ubuntu-latest
     steps:
